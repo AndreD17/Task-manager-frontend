@@ -11,10 +11,11 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post("https://task-manager-backend-qc8t.onrender.com/api/auth/login", {
+      email,
+      password,
+     });
+
       localStorage.setItem("token", response.data.token); // Save the token
       navigate("/tasks"); // Redirect to homepage
       console.log('Login successful:', response.data);
