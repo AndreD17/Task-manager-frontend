@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import TaskPage from "./pages/TaskPage";
 import TaskDetail from "./pages/TaskDetail";
 import Login from "./pages/Login";
-import Signup from "./pages/signup";
+import Signup from "./pages/Signup";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
