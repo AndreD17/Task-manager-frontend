@@ -1,62 +1,176 @@
 import React, { useState } from "react";
 import api from "../api";
+import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 
 const TaskForm = ({ onAddTask }) => {
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
 
-    if (!description || !dueDate) {
-      alert("Please fill in all fields.");
+    // Validation
+    if (!title || !description || !dueDate) {
+      setError("Please fill in all required fields");
+      setLoading(false);
+      return;
+    }
+
+    // Check if due date is in the future
+    if (new Date(dueDate) < new Date()) {
+      setError("Due date must be in the future");
+      setLoading(false);
       return;
     }
 
     try {
-      const newTask = { description, dueDate };
+      // If description is empty, fall back to title to support quick entries
+      const payloadDescription = description && description.trim() !== "" ? description : title;
+
+      const newTask = {
+        title,
+        description: payloadDescription,
+        dueDate,
+        priority,
+      };
       const response = await api.post("/tasks", newTask);
       onAddTask(response.data.task);
-      console.log("Response from backend:", response.data);
+      setSuccess("Task created successfully!");
+      
+      // Reset form
+      setTitle("");
       setDescription("");
       setDueDate("");
+      setPriority("medium");
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
       console.error("Error adding task:", error);
+      const serverMsg = error.response?.data?.msg || error.response?.data?.message;
+      setError(serverMsg || "Failed to create task. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Description</label>
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          className="w-full px-3 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter task description"
-        />
-      </div>
+    <div className="card">
+      <div className="card-body">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">➕ Add New Task</h3>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Due Date</label>
-        <input
-          type="datetime-local"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          required
-          className="w-full px-3 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+        {error && (
+          <div className="flex items-start space-x-3 p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
+            <FiAlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
 
-      <button
-        type="submit"
-        className="px-4 py-2 font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition duration-200"
-      >
-        Add Task
-      </button>
-    </form>
+        {success && (
+          <div className="flex items-start space-x-3 p-4 mb-4 bg-green-50 border border-green-200 rounded-lg">
+            <FiCheckCircle className="text-success-500 flex-shrink-0 mt-0.5" size={20} />
+            <p className="text-sm text-green-700">{success}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title Field */}
+          <div className="form-group">
+            <label htmlFor="title" className="form-label">
+              Task Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={loading}
+              className="form-input w-full"
+              placeholder="e.g., Complete project proposal"
+              required
+            />
+          </div>
+
+          {/* Description Field */}
+          <div className="form-group">
+            <label htmlFor="description" className="form-label">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={loading}
+              className="form-input resize-none w-full"
+              placeholder="Add more details about this task..."
+              rows="3"
+              required
+            />
+          </div>
+
+          {/* Due Date and Priority Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Due Date Field */}
+            <div className="form-group">
+              <label htmlFor="dueDate" className="form-label">
+                Due Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="dueDate"
+                type="datetime-local"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                disabled={loading}
+                className="form-input w-full"
+                required
+              />
+            </div>
+
+            {/* Priority Field */}
+            <div className="form-group">
+              <label htmlFor="priority" className="form-label">
+                Priority
+              </label>
+              <select
+                id="priority"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                disabled={loading}
+                className="form-input w-full"
+              >
+                <option value="low">🟢 Low</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="high">🔴 High</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full btn-primary flex items-center justify-center mt-6 py-3 text-sm sm:text-base"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Creating task...
+              </>
+            ) : (
+              "Create Task"
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 

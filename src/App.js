@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import TaskPage from "./pages/TaskPage";
@@ -8,15 +8,8 @@ import Signup from "./pages/Signup";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  useEffect(() => {
-    const handleStorageChange = () => setToken(localStorage.getItem("token"));
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="App">
         <Routes>
           {/* Home page is always public and shown first */}

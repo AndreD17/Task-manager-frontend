@@ -17,6 +17,11 @@
     "serve": "^14.2.4",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.16"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -42,3 +47,4 @@
     ]
   }
 }
+
