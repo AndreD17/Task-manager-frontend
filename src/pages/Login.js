@@ -143,7 +143,7 @@ const Login = () => {
         {/* Help Text */}
         <p className="text-center text-sm text-gray-600 mt-6">
           Having trouble? Contact{" "}
-          <a href="mailto:support@taskmanager.com" className="text-primary-600 hover:text-primary-700">
+          <a href="mailto:Damilaresammy1996@gmail.com" className="text-primary-600 hover:text-primary-700">
             support
           </a>
         </p>

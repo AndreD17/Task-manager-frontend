@@ -62,7 +62,7 @@ const Signup = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-success-500 rounded-lg mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-400 rounded-lg mb-4">
             <span className="text-2xl">+</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Join Us Today</h1>
