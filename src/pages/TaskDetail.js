@@ -33,6 +33,7 @@ const TaskDetail = () => {
     fetchTask();
   }, [id]);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "description") setDescription(value);

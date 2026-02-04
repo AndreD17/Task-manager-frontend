@@ -20,18 +20,18 @@ const TaskPage = () => {
         const response = await api.get("/tasks");
         setTasks(response.data.tasks || []);
         setError("");
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
 
-        if (error.response?.status === 401) {
-          // Token expired - redirect to login
+        if (err.response?.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem("token");
           navigate("/login");
-        } else if (error.response?.status === 404) {
-          // No tasks found - treat as empty list
+        } else if (err.response?.status === 404) {
+          // No tasks found
           setTasks([]);
-          setError("");
         } else {
-          setError(error.response?.data?.msg || error.response?.data?.message || "Failed to load tasks.");
+          setError(err.response?.data?.msg || "Failed to load tasks.");
         }
       } finally {
         setLoading(false);
@@ -46,13 +46,11 @@ const TaskPage = () => {
     setSyncing(true);
     try {
       const response = await api.post("/tasks", taskData);
-      setTasks((prevTasks) => [...prevTasks, response.data.task]);
+      setTasks((prev) => [...prev, response.data.task]);
       setError("");
     } catch (err) {
       console.error("Error adding task:", err);
-      setError(
-        err.response?.data?.message
-      );
+      setError(err.response?.data?.msg || "Failed to add task.");
     } finally {
       setSyncing(false);
     }
