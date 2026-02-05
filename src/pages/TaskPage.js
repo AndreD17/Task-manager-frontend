@@ -9,7 +9,6 @@ const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
   const navigate = useNavigate();
 
   // ✅ Fetch tasks on component mount
@@ -41,20 +40,12 @@ const TaskPage = () => {
     fetchTasks();
   }, [navigate]);
 
-  // ✅ Add new task
-  const handleAddTask = async (taskData) => {
-    setSyncing(true);
-    try {
-      const response = await api.post("/tasks", taskData);
-      setTasks((prev) => [...prev, response.data.task]);
+    // ✅ Add new task
+    const handleAddTask = (task) => {
+      setTasks((prev) => [task, ...prev]);
       setError("");
-    } catch (err) {
-      console.error("Error adding task:", err);
-      setError(err.response?.data?.msg || "Failed to add task.");
-    } finally {
-      setSyncing(false);
-    }
-  };
+    };
+
 
   // ✅ Delete task with loading state
   const handleDeleteTask = async (id) => {
@@ -139,12 +130,6 @@ const TaskPage = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 Your Tasks ({tasks.length})
               </h2>
-              {syncing && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
-                  <span>Syncing...</span>
-                </div>
-              )}
             </div>
 
             <TaskList

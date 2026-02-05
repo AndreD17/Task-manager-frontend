@@ -7,56 +7,67 @@ const TaskForm = ({ onAddTask }) => {
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState("medium");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent double submission
+    if (loading) return;
+
     setError("");
     setSuccess("");
     setLoading(true);
 
-    // Validation
-    if (!title || !description || !dueDate) {
+    // Basic validation
+    if (!title.trim() || !description.trim() || !dueDate) {
       setError("Please fill in all required fields");
       setLoading(false);
       return;
     }
 
-    // Check if due date is in the future
-    if (new Date(dueDate) < new Date()) {
+    // Due date must be in the future
+    if (new Date(dueDate) <= new Date()) {
       setError("Due date must be in the future");
       setLoading(false);
       return;
     }
 
     try {
-      // If description is empty, fall back to title to support quick entries
-      const payloadDescription = description && description.trim() !== "" ? description : title;
-
       const newTask = {
-        title,
-        description: payloadDescription,
+        title: title.trim(),
+        description: description.trim(),
         dueDate,
         priority,
       };
+
       const response = await api.post("/tasks", newTask);
+
       onAddTask(response.data.task);
+
       setSuccess("Task created successfully!");
-      
+
       // Reset form
       setTitle("");
       setDescription("");
       setDueDate("");
       setPriority("medium");
-      
-      // Clear success message after 3 seconds
+
+      // Auto-hide success message
       setTimeout(() => setSuccess(""), 3000);
-    } catch (error) {
-      console.error("Error adding task:", error);
-      const serverMsg = error.response?.data?.msg || error.response?.data?.message;
-      setError(serverMsg || "Failed to create task. Please try again.");
+    } catch (err) {
+      console.error("Error creating task:", err);
+
+      if (err.response?.status === 400) {
+        setError(err.response.data.msg);
+      } else if (err.response?.status === 401) {
+        setError("Session expired. Please log in again.");
+      } else {
+        setError("Failed to create task. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -65,24 +76,32 @@ const TaskForm = ({ onAddTask }) => {
   return (
     <div className="card">
       <div className="card-body">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">➕ Add New Task</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          ➕ Add New Task
+        </h3>
 
         {error && (
           <div className="flex items-start space-x-3 p-4 mb-4 bg-red-50 border border-red-200 rounded-lg">
-            <FiAlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <FiAlertCircle
+              className="text-red-600 flex-shrink-0 mt-0.5"
+              size={20}
+            />
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
         {success && (
           <div className="flex items-start space-x-3 p-4 mb-4 bg-green-50 border border-green-200 rounded-lg">
-            <FiCheckCircle className="text-success-500 flex-shrink-0 mt-0.5" size={20} />
+            <FiCheckCircle
+              className="text-green-600 flex-shrink-0 mt-0.5"
+              size={20}
+            />
             <p className="text-sm text-green-700">{success}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title Field */}
+          {/* Title */}
           <div className="form-group">
             <label htmlFor="title" className="form-label">
               Task Title <span className="text-red-500">*</span>
@@ -99,7 +118,7 @@ const TaskForm = ({ onAddTask }) => {
             />
           </div>
 
-          {/* Description Field */}
+          {/* Description */}
           <div className="form-group">
             <label htmlFor="description" className="form-label">
               Description <span className="text-red-500">*</span>
@@ -116,9 +135,8 @@ const TaskForm = ({ onAddTask }) => {
             />
           </div>
 
-          {/* Due Date and Priority Row */}
+          {/* Due Date + Priority */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Due Date Field */}
             <div className="form-group">
               <label htmlFor="dueDate" className="form-label">
                 Due Date <span className="text-red-500">*</span>
@@ -134,7 +152,6 @@ const TaskForm = ({ onAddTask }) => {
               />
             </div>
 
-            {/* Priority Field */}
             <div className="form-group">
               <label htmlFor="priority" className="form-label">
                 Priority
@@ -153,7 +170,7 @@ const TaskForm = ({ onAddTask }) => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -161,7 +178,7 @@ const TaskForm = ({ onAddTask }) => {
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                 Creating task...
               </>
             ) : (
