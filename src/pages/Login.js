@@ -30,10 +30,10 @@ const Login = () => {
         { withCredentials: true } // VERY IMPORTANT
       );
 ;
-
       localStorage.setItem("token", response.data.token);
+      console.log("LOGIN RESPONSE:", response.data);
       setLoading(false);
-      navigate("/tasks");
+      navigate("/api/tasks");
     } catch (err) {
       setLoading(false);
       const errorMsg =
