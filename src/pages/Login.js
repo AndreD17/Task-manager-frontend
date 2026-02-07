@@ -24,10 +24,12 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+       `${API_BASE_URL}/api/auth/login`,
+        { email, password },
+        { withCredentials: true } // VERY IMPORTANT
+      );
+;
 
       localStorage.setItem("token", response.data.token);
       setLoading(false);
@@ -85,6 +87,7 @@ const Login = () => {
                   disabled={loading}
                   className="form-input pl-10"
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -105,6 +108,7 @@ const Login = () => {
                   disabled={loading}
                   className="form-input pl-10"
                   required
+                  autoComplete="current-password"
                 />
               </div>
             </div>

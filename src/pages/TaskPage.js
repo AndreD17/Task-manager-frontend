@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TaskForm from "../components/TaskForm";
 import TaskList from "../components/TaskList";
+//import { API_BASE_URL } from "../api";
 import api from "../api";
 import { FiAlertCircle } from "react-icons/fi";
+
+
+
 
 const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -16,7 +20,7 @@ const TaskPage = () => {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        const response = await api.get("/tasks");
+        const response = await api.get(`/api/tasks`);
         setTasks(response.data.tasks || []);
         setError("");
       } catch (err) {
@@ -50,7 +54,7 @@ const TaskPage = () => {
   // ✅ Delete task with loading state
   const handleDeleteTask = async (id) => {
     try {
-      await api.delete(`/tasks/${id}`);
+      await api.delete(`/api/tasks/${id}`);
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
       setError("");
     } catch (error) {
@@ -65,7 +69,7 @@ const TaskPage = () => {
   // ✅ Update task status or details
   const handleUpdateTask = async (updatedTask) => {
     try {
-      const response = await api.put(`/tasks/${updatedTask.id}`, {
+      const response = await api.put(`/api/tasks/${updatedTask.id}`, {
         title: updatedTask.title,
         description: updatedTask.description,
         dueDate: updatedTask.dueDate,

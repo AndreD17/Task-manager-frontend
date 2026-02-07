@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 
+
 const TaskDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const TaskDetail = () => {
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        const response = await api.get(`/tasks/${id}`);
+        const response = await api.get(`/api/tasks/${id}`);
         const fetchedTask = response.data.task;
         setTask(fetchedTask);
         setDescription(fetchedTask.description);
@@ -58,7 +59,7 @@ const TaskDetail = () => {
       status: status,
     });
 
-    const updated = await api.put(`/tasks/${id}`, {
+    const updated = await api.put(`/api/tasks/${id}`, {
       description: description,
       dueDate: formattedDueDate,
       status: status,
@@ -81,8 +82,8 @@ const TaskDetail = () => {
     const confirmDelete = window.confirm("Are you sure you want to delete this task?");
     if (confirmDelete) {
       try {
-        await api.delete(`/tasks/${id}`);
-        navigate("/tasks");
+        await api.delete(`/api/tasks/${id}`);
+        navigate("/api/tasks");
       } catch (error) {
         console.error("Error deleting task:", error);
         setError("There was an issue deleting the task.");

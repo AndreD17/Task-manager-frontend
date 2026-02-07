@@ -3,15 +3,17 @@ import axios from "axios";
 
 let API_BASE_URL = process.env.REACT_APP_API_URL;
 
-
 if (API_BASE_URL && !API_BASE_URL.startsWith("http")) {
   API_BASE_URL = `http://${API_BASE_URL}`;
 }
 
-// Fallback for local dev
+
 if (!API_BASE_URL) {
   API_BASE_URL = "http://localhost:5000";
 }
+
+
+API_BASE_URL = API_BASE_URL.replace(/\/$/, '');
 
 export { API_BASE_URL };
 
@@ -23,22 +25,52 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Attach JWT
+// Request interceptor with debug logging
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔵 API Request:', {
+        url: config.baseURL + config.url,
+        method: config.method,
+        data: config.data,
+      });
+    }
+    
     return config;
   },
-  Promise.reject
+  (error) => Promise.reject(error)
 );
 
-// Global auth handling
+// Response interceptor with debug logging
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    // ✅ Debug logging for development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ API Response:', {
+        url: res.config.url,
+        status: res.status,
+        data: res.data,
+      });
+    }
+    return res;
+  },
   (err) => {
+    // ✅ Debug logging for development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ API Error:', {
+        url: err.config?.url,
+        status: err.response?.status,
+        message: err.message,
+        data: err.response?.data,
+      });
+    }
+    
     if (err.response?.status === 401) {
       localStorage.removeItem("token");
       if (window.location.pathname !== "/login") {

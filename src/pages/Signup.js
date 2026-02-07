@@ -38,11 +38,12 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
-        name,
-        email,
-        password,
-      });
+      const response = await axios.post(
+      `${API_BASE_URL}/api/auth/signup`,
+      { name, email, password },
+      { withCredentials: true }
+    );
+
 
       localStorage.setItem("token", response.data.token);
       setLoading(false);

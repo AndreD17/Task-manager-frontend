@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import api from "../api";
+//import { API_BASE_URL } from "../api";
 import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 
 const TaskForm = ({ onAddTask }) => {
@@ -44,7 +45,7 @@ const TaskForm = ({ onAddTask }) => {
         priority,
       };
 
-      const response = await api.post("/tasks", newTask);
+      const response = await api.post(`/api/tasks`, newTask);
 
       onAddTask(response.data.task);
 
